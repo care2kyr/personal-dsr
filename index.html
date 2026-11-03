@@ -625,8 +625,20 @@ dialog::backdrop {background:#0b1822a6}
   <div class="p-footer">Personal attendance report. CSC Form No. 48-style layout; not an official government-issued or authenticated form.</div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 <script>
 "use strict";
+
+// SUPABASE CONNECTION
+const DSR_SUPABASE_URL = "https://byhpvctfudqzvphegehm.supabase.co";
+
+const DSR_SUPABASE_KEY = "sb_publishable_8vVu-Bvw5IozxHqATeHYew_PwNuknQv";
+
+const dsrSupabase = window.supabase.createClient(
+    DSR_SUPABASE_URL,
+    DSR_SUPABASE_KEY
+);
 
 const RECORD_KEY = "personalDSR_records_v4";
 const HOLIDAY_KEY = "personalDSR_holidays";
