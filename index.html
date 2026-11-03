@@ -1,0 +1,1198 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#075e54">
+<title>Personal DSR | Attendance Management</title>
+
+<style>
+:root {
+  --bg:#f3f6f8;
+  --surface:#ffffff;
+  --surface2:#f8fafb;
+  --text:#172b35;
+  --muted:#71818a;
+  --border:#e5ebee;
+  --primary:#087568;
+  --primary-dark:#075e54;
+  --primary-soft:#e7f3f1;
+  --success:#16865d;
+  --danger:#c94b4b;
+  --shadow:0 8px 28px rgba(23,43,53,.055);
+}
+body.dark {
+  --bg:#101a22;
+  --surface:#192832;
+  --surface2:#202f39;
+  --text:#edf4f5;
+  --muted:#9aabb3;
+  --border:#30414b;
+  --primary:#55b8a8;
+  --primary-dark:#3b9b8b;
+  --primary-soft:#203e3c;
+  --success:#5ac49a;
+  --danger:#f08080;
+  --shadow:0 8px 28px rgba(0,0,0,.16);
+}
+* {box-sizing:border-box}
+body {
+  margin:0;
+  background:var(--bg);
+  color:var(--text);
+  font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+  font-size:14px;
+  line-height:1.5;
+  transition:background .2s,color .2s;
+}
+button,input {font:inherit}
+button {cursor:pointer}
+.topbar {
+  background:var(--surface);
+  border-bottom:1px solid var(--border);
+  position:sticky;
+  top:0;
+  z-index:10;
+}
+.topbar-inner {
+  max-width:1180px;
+  margin:auto;
+  padding:15px 24px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+.brand-wrap {display:flex;align-items:center;gap:12px}
+.brand-mark {
+  width:39px;height:39px;border-radius:11px;
+  background:var(--primary);
+  display:grid;place-items:center;
+  color:white;font-weight:800;font-size:17px;
+}
+.brand-name {font-weight:750;font-size:17px;letter-spacing:-.4px}
+.brand-sub {font-size:11px;color:var(--muted);margin-top:1px}
+.top-actions {display:flex;gap:9px;align-items:center}
+.icon-btn {
+  border:1px solid var(--border);
+  background:var(--surface2);
+  color:var(--text);
+  border-radius:9px;
+  padding:9px 12px;
+  font-size:12px;
+  font-weight:650;
+}
+.container {max-width:1180px;margin:30px auto;padding:0 24px}
+.page-heading {
+  display:flex;justify-content:space-between;
+  align-items:flex-start;gap:20px;margin-bottom:23px;
+}
+.eyebrow {
+  color:var(--primary);font-size:10px;
+  font-weight:800;letter-spacing:1.5px;
+  text-transform:uppercase;margin-bottom:6px;
+}
+h1 {font-size:25px;letter-spacing:-.8px;margin:0;font-weight:750}
+.subheading {color:var(--muted);font-size:13px;margin-top:5px}
+.clock-card {
+  min-width:220px;
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:13px;
+  padding:13px 17px;
+  box-shadow:var(--shadow);
+  text-align:right;
+}
+.clock-time {
+  color:var(--primary);
+  font-size:25px;font-weight:750;
+  letter-spacing:.5px;font-variant-numeric:tabular-nums;
+}
+.clock-date {font-size:11px;color:var(--muted);margin-top:2px}
+.section-label {
+  font-size:14px;font-weight:750;
+  letter-spacing:-.2px;margin-bottom:4px;
+}
+.section-description {font-size:12px;color:var(--muted)}
+.stats {
+  display:grid;grid-template-columns:repeat(3,1fr);
+  gap:15px;margin-bottom:19px;
+}
+.stat-card {
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:13px;
+  padding:18px 19px;
+  box-shadow:var(--shadow);
+}
+.stat-top {display:flex;justify-content:space-between;align-items:center}
+.stat-label {
+  font-size:11px;color:var(--muted);
+  font-weight:700;letter-spacing:.45px;
+}
+.stat-icon {
+  width:31px;height:31px;border-radius:9px;
+  display:grid;place-items:center;
+  color:var(--primary);background:var(--primary-soft);
+  font-size:14px;font-weight:800;
+}
+.stat-number {
+  font-size:25px;font-weight:760;
+  letter-spacing:-.7px;margin-top:11px;
+  font-variant-numeric:tabular-nums;
+}
+.stat-foot {font-size:11px;color:var(--muted);margin-top:2px}
+.panel {
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:14px;
+  padding:21px;
+  margin-bottom:18px;
+  box-shadow:var(--shadow);
+}
+.panel-heading {
+  display:flex;justify-content:space-between;
+  align-items:flex-start;gap:15px;margin-bottom:17px;
+}
+.record-grid {
+  display:grid;grid-template-columns:repeat(4,1fr);
+  gap:12px;
+}
+.record-box {
+  border:1px solid var(--border);
+  border-radius:11px;
+  background:var(--surface2);
+  padding:15px;
+  min-width:0;
+}
+.record-label {
+  color:var(--muted);font-size:10px;
+  letter-spacing:.7px;font-weight:800;
+}
+.record-time {
+  font-size:21px;font-weight:750;
+  letter-spacing:-.5px;margin:8px 0 12px;
+  font-variant-numeric:tabular-nums;
+}
+.btn {
+  border:0;border-radius:8px;
+  padding:10px 14px;font-size:12px;
+  font-weight:700;transition:opacity .15s,transform .15s;
+}
+.btn:active {transform:scale(.98)}
+.btn:disabled {opacity:.38;cursor:not-allowed}
+.btn-primary {background:var(--primary);color:#fff}
+.btn-soft {background:var(--primary-soft);color:var(--primary)}
+.btn-neutral {
+  background:var(--surface2);color:var(--text);
+  border:1px solid var(--border);
+}
+.btn-danger {background:#fceaea;color:#a83232}
+body.dark .btn-danger {background:#482b30;color:#ffaaaa}
+.full-btn {width:100%}
+.record-status {font-size:11px;color:var(--muted);margin-top:13px}
+.tag {
+  display:inline-flex;align-items:center;
+  padding:4px 8px;border-radius:5px;
+  font-size:10px;font-weight:750;
+}
+.tag-holiday {background:#fff1cf;color:#875b08}
+.tag-weekend {background:var(--primary-soft);color:var(--primary)}
+.tag-regular {background:var(--surface2);color:var(--muted)}
+body.dark .tag-holiday {background:#493c21;color:#f5d58a}
+.form-grid {
+  display:grid;grid-template-columns:1fr 1.5fr auto;
+  gap:12px;align-items:end;
+}
+.field label {
+  display:block;font-size:11px;
+  color:var(--muted);font-weight:700;margin-bottom:6px;
+}
+.field input {
+  width:100%;height:41px;padding:0 11px;
+  background:var(--surface2);color:var(--text);
+  border:1px solid var(--border);border-radius:8px;
+  outline:none;
+}
+.field input:focus {
+  border-color:var(--primary);
+  box-shadow:0 0 0 3px var(--primary-soft);
+}
+.holiday-list {margin-top:15px;display:grid;gap:8px}
+.holiday-item {
+  display:flex;justify-content:space-between;
+  align-items:center;gap:12px;
+  padding:10px 12px;border:1px solid var(--border);
+  border-radius:9px;background:var(--surface2);
+}
+.holiday-item strong {font-size:12px}
+.holiday-item small {display:block;color:var(--muted);font-size:11px}
+.history-tools {
+  display:flex;gap:10px;align-items:center;
+}
+.history-tools input {max-width:175px}
+.table-wrap {overflow-x:auto}
+table {width:100%;border-collapse:collapse;min-width:780px}
+th {
+  color:var(--muted);font-size:10px;
+  text-transform:uppercase;letter-spacing:.5px;
+  font-weight:750;background:var(--surface2);
+}
+th,td {
+  text-align:left;padding:12px 10px;
+  border-bottom:1px solid var(--border);
+  white-space:nowrap;font-size:12px;
+}
+td {font-variant-numeric:tabular-nums}
+tbody tr:last-child td {border-bottom:0}
+.action-cell {display:flex;gap:6px}
+.small-btn {padding:6px 9px;font-size:10px}
+.empty-state {
+  text-align:center;padding:25px 10px;
+  color:var(--muted);font-size:12px;
+}
+.month-grid {
+  display:grid;grid-template-columns:1fr 1fr;
+  gap:16px;align-items:end;
+}
+.month-total {
+  background:var(--primary-soft);
+  border-radius:11px;padding:16px;
+}
+.month-total small {
+  display:block;color:var(--primary);
+  font-size:10px;font-weight:800;letter-spacing:.7px;
+}
+.month-total strong {
+  display:block;color:var(--primary);
+  font-size:25px;margin-top:5px;
+}
+.profile-grid {
+  display:grid;grid-template-columns:1fr auto;
+  gap:12px;align-items:end;
+}
+.note {
+  font-size:11px;color:var(--muted);
+  margin-top:11px;line-height:1.6;
+}
+.footer {
+  text-align:center;color:var(--muted);
+  font-size:10px;padding:16px 10px 25px;
+}
+dialog {
+  border:1px solid var(--border);
+  border-radius:15px;
+  background:var(--surface);color:var(--text);
+  width:calc(100% - 30px);max-width:450px;
+  padding:23px;box-shadow:0 20px 70px #0003;
+}
+dialog::backdrop {background:#0b1822a6}
+.modal-title {font-size:18px;font-weight:750;margin:0 0 17px}
+.modal-fields {display:grid;gap:12px}
+.modal-actions {display:flex;gap:9px;margin-top:18px}
+.modal-actions button {flex:1}
+#printArea {display:none}
+
+@media(max-width:760px) {
+  .container {padding:0 15px;margin-top:22px}
+  .topbar-inner {padding:12px 15px}
+  .page-heading {flex-direction:column}
+  .clock-card {width:100%;text-align:left}
+  .record-grid {grid-template-columns:repeat(2,1fr)}
+  .form-grid {grid-template-columns:1fr}
+  .month-grid {grid-template-columns:1fr}
+  .history-tools {flex-wrap:wrap}
+}
+@media(max-width:430px) {
+  .stats {grid-template-columns:1fr 1fr}
+  .stats .stat-card:last-child {grid-column:span 2}
+  .stat-card {padding:14px}
+  .stat-number {font-size:21px}
+  .record-box {padding:12px}
+  .record-time {font-size:18px}
+  .panel {padding:16px}
+  .brand-sub {display:none}
+}
+@media print {
+  @page {size:A4 landscape;margin:9mm}
+  body {background:white!important;color:black!important}
+  body * {visibility:hidden!important}
+  #printArea,#printArea * {visibility:visible!important}
+  #printArea {
+    display:block!important;position:absolute;
+    left:0;top:0;width:100%;
+    color:#000!important;background:#fff!important;
+    font-family:"Times New Roman",serif;
+  }
+  .p-title {text-align:center;font-size:16px;font-weight:bold}
+  .p-subtitle {text-align:center;font-size:11px;margin:3px 0 13px}
+  .p-info {font-size:11px;margin-bottom:10px}
+  .p-info div {margin:3px 0}
+  .p-table {width:100%;border-collapse:collapse;font-size:9px}
+  .p-table th,.p-table td {
+    border:1px solid #000!important;
+    padding:3px 2px;text-align:center;
+    color:#000!important;white-space:normal;
+  }
+  .p-table th {font-weight:bold}
+  .p-table .day-col {text-align:left;min-width:105px}
+  .p-table .weekend-row {background:#eee!important}
+  .p-table .holiday-row {background:#fff0d0!important}
+  .p-table tfoot th {font-weight:bold}
+  .p-signatures {
+    display:flex;justify-content:space-between;
+    gap:30px;margin-top:25px;font-size:10px;
+  }
+  .p-signature {
+    width:43%;border-top:1px solid #000;
+    text-align:center;padding-top:5px;
+  }
+  .p-cert {font-size:9px;margin-top:13px;line-height:1.5}
+  .p-footer {font-size:8px;margin-top:8px;color:#444}
+}
+</style>
+</head>
+
+<body>
+<header class="topbar">
+  <div class="topbar-inner">
+    <div class="brand-wrap">
+      <div class="brand-mark">D</div>
+      <div>
+        <div class="brand-name">Personal DSR</div>
+        <div class="brand-sub">Attendance Management System</div>
+      </div>
+    </div>
+    <div class="top-actions">
+      <button class="icon-btn" id="themeBtn">Dark Mode</button>
+    </div>
+  </div>
+</header>
+
+<main class="container">
+
+  <section class="page-heading">
+    <div>
+      <div class="eyebrow">Personal Workspace</div>
+      <h1>Attendance Dashboard</h1>
+      <div class="subheading">Manage your daily attendance and service records.</div>
+    </div>
+    <div class="clock-card">
+      <div class="clock-time" id="liveClock">--:--:--</div>
+      <div class="clock-date" id="liveDate">Loading date...</div>
+    </div>
+  </section>
+
+  <section class="stats">
+    <div class="stat-card">
+      <div class="stat-top">
+        <span class="stat-label">MORNING HOURS</span>
+        <span class="stat-icon">AM</span>
+      </div>
+      <div class="stat-number" id="morningDisplay">0h 0m</div>
+      <div class="stat-foot">Today's morning attendance</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-top">
+        <span class="stat-label">AFTERNOON HOURS</span>
+        <span class="stat-icon">PM</span>
+      </div>
+      <div class="stat-number" id="afternoonDisplay">0h 0m</div>
+      <div class="stat-foot">Today's afternoon attendance</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-top">
+        <span class="stat-label">TOTAL HOURS TODAY</span>
+        <span class="stat-icon">Σ</span>
+      </div>
+      <div class="stat-number" id="hoursDisplay">0h 0m</div>
+      <div class="stat-foot">Combined hours rendered</div>
+    </div>
+  </section>
+
+  <section class="panel">
+    <div class="panel-heading">
+      <div>
+        <div class="section-label">Daily Time Recording</div>
+        <div class="section-description">Use the buttons to record your actual arrival and departure.</div>
+      </div>
+      <span class="tag tag-regular" id="todayType">TODAY</span>
+    </div>
+
+    <div class="record-grid">
+      <div class="record-box">
+        <div class="record-label">AM TIME IN</div>
+        <div class="record-time" id="amInDisplay">--:--</div>
+        <button class="btn btn-primary full-btn" id="amInBtn">Time In</button>
+      </div>
+      <div class="record-box">
+        <div class="record-label">AM TIME OUT</div>
+        <div class="record-time" id="amOutDisplay">--:--</div>
+        <button class="btn btn-soft full-btn" id="amOutBtn" disabled>Time Out</button>
+      </div>
+      <div class="record-box">
+        <div class="record-label">PM TIME IN</div>
+        <div class="record-time" id="pmInDisplay">--:--</div>
+        <button class="btn btn-primary full-btn" id="pmInBtn" disabled>Time In</button>
+      </div>
+      <div class="record-box">
+        <div class="record-label">PM TIME OUT</div>
+        <div class="record-time" id="pmOutDisplay">--:--</div>
+        <button class="btn btn-soft full-btn" id="pmOutBtn" disabled>Time Out</button>
+      </div>
+    </div>
+    <div class="record-status" id="recordStatus">No attendance entries recorded today.</div>
+  </section>
+
+  <section class="panel">
+    <div class="panel-heading">
+      <div>
+        <div class="section-label">Holiday Management</div>
+        <div class="section-description">Manually mark holidays. No automatic holiday calendar is used.</div>
+      </div>
+    </div>
+    <div class="form-grid">
+      <div class="field">
+        <label for="holidayDate">HOLIDAY DATE</label>
+        <input type="date" id="holidayDate">
+      </div>
+      <div class="field">
+        <label for="holidayName">HOLIDAY NAME</label>
+        <input type="text" id="holidayName" placeholder="Enter holiday name">
+      </div>
+      <button class="btn btn-primary" id="saveHolidayBtn">Save Holiday</button>
+    </div>
+    <div class="holiday-list" id="holidayList"></div>
+    <div class="note">Saturday and Sunday are identified automatically. Holiday labels are added only when you manually mark a date.</div>
+  </section>
+
+  <section class="panel">
+    <div class="panel-heading">
+      <div>
+        <div class="section-label">Attendance History</div>
+        <div class="section-description">Review, edit, or delete your saved attendance records.</div>
+      </div>
+    </div>
+    <div class="history-tools" style="margin-bottom:13px">
+      <div class="field" style="margin:0">
+        <label for="historyMonth">FILTER BY MONTH</label>
+        <input type="month" id="historyMonth">
+      </div>
+      <button class="btn btn-neutral" id="clearFilterBtn">Show All</button>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Day Type</th>
+            <th>AM In</th>
+            <th>AM Out</th>
+            <th>PM In</th>
+            <th>PM Out</th>
+            <th>Total Hours</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="historyBody"></tbody>
+      </table>
+    </div>
+    <div class="empty-state" id="historyEmpty">No attendance records found.</div>
+  </section>
+
+  <section class="panel">
+    <div class="panel-heading">
+      <div>
+        <div class="section-label">Monthly DSR Report</div>
+        <div class="section-description">Generate a monthly report from your saved attendance records.</div>
+      </div>
+    </div>
+    <div class="month-grid">
+      <div class="field">
+        <label for="monthPicker">SELECT REPORT MONTH</label>
+        <input type="month" id="monthPicker">
+      </div>
+      <div class="month-total">
+        <small>MONTHLY TOTAL HOURS</small>
+        <strong id="monthlyHours">0h 0m</strong>
+        <div class="section-description" id="monthlyDays">0 recorded days</div>
+      </div>
+    </div>
+    <button class="btn btn-primary" id="pdfBtn" style="margin-top:17px;width:100%">
+      Download Monthly DSR (PDF)
+    </button>
+    <div class="note">The report includes every calendar day of the selected month, saved attendance entries, daily totals, weekend labels, holiday names, and monthly total hours. Use your device's print option and select “Save as PDF”.</div>
+  </section>
+
+  <section class="panel">
+    <div class="panel-heading">
+      <div>
+        <div class="section-label">Employee Information</div>
+        <div class="section-description">Your name will appear on the monthly DSR report.</div>
+      </div>
+    </div>
+    <div class="profile-grid">
+      <div class="field" style="margin:0">
+        <label for="employeeName">FULL NAME</label>
+        <input type="text" id="employeeName" placeholder="Enter your complete name">
+      </div>
+      <button class="btn btn-soft" id="saveProfileBtn">Save Information</button>
+    </div>
+    <div class="note" id="profileStatus"></div>
+  </section>
+
+  <div class="footer">PERSONAL DSR · LOCAL ATTENDANCE RECORDS</div>
+</main>
+
+<dialog id="editDialog">
+  <form id="editForm">
+    <h2 class="modal-title">Edit Attendance Record</h2>
+    <div class="modal-fields">
+      <div class="field">
+        <label for="editDate">DATE</label>
+        <input type="date" id="editDate" required>
+      </div>
+      <div class="field">
+        <label for="editAmIn">AM ARRIVAL</label>
+        <input type="time" id="editAmIn">
+      </div>
+      <div class="field">
+        <label for="editAmOut">AM DEPARTURE</label>
+        <input type="time" id="editAmOut">
+      </div>
+      <div class="field">
+        <label for="editPmIn">PM ARRIVAL</label>
+        <input type="time" id="editPmIn">
+      </div>
+      <div class="field">
+        <label for="editPmOut">PM DEPARTURE</label>
+        <input type="time" id="editPmOut">
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button type="button" class="btn btn-neutral" id="cancelEdit">Cancel</button>
+      <button type="submit" class="btn btn-primary">Save Changes</button>
+    </div>
+  </form>
+</dialog>
+
+<div id="printArea">
+  <div class="p-title">DAILY TIME RECORD</div>
+  <div class="p-subtitle">CIVIL SERVICE FORM NO. 48 - STYLE</div>
+
+  <div class="p-info">
+    <div><strong>NAME:</strong> <span id="printName"></span></div>
+    <div><strong>FOR THE MONTH OF:</strong> <span id="printMonth"></span></div>
+  </div>
+
+  <table class="p-table">
+    <thead>
+      <tr>
+        <th rowspan="2">DAY</th>
+        <th colspan="2">A.M.</th>
+        <th colspan="2">P.M.</th>
+        <th rowspan="2">TOTAL HOURS<br>RENDERED</th>
+        <th colspan="2">UNDERTIME</th>
+      </tr>
+      <tr>
+        <th>Arrival</th>
+        <th>Departure</th>
+        <th>Arrival</th>
+        <th>Departure</th>
+        <th>Hours</th>
+        <th>Minutes</th>
+      </tr>
+    </thead>
+    <tbody id="printBody"></tbody>
+    <tfoot>
+      <tr>
+        <th colspan="5">TOTAL</th>
+        <th id="printTotal">0h 0m</th>
+        <th></th>
+        <th></th>
+      </tr>
+    </tfoot>
+  </table>
+
+  <div class="p-signatures">
+    <div class="p-signature">Employee's Signature</div>
+    <div class="p-signature">Verified by / In-Charge</div>
+  </div>
+
+  <div class="p-cert">
+    I certify on my honor that the above is a true and correct report of the hours of work performed, record of which was made daily at the time of arrival and departure from office.
+  </div>
+  <div class="p-footer">Personal attendance report. CSC Form No. 48-style layout; not an official government-issued or authenticated form.</div>
+</div>
+
+<script>
+"use strict";
+
+const RECORD_KEY = "personalDSR_records_v4";
+const HOLIDAY_KEY = "personalDSR_holidays";
+const PROFILE_KEY = "personalDSR_profile";
+const THEME_KEY = "personalDSR_theme";
+
+const $ = id => document.getElementById(id);
+
+function loadJSON(key,fallback) {
+  try {
+    const value=JSON.parse(localStorage.getItem(key));
+    return value===null?fallback:value;
+  } catch {
+return fallback;
+  }
+}
+
+let records=loadJSON(RECORD_KEY,[]);
+let holidays=loadJSON(HOLIDAY_KEY,{});
+let editingId=null;
+
+const slots=[
+  {key:"amIn",display:"amInDisplay",button:"amInBtn"},
+  {key:"amOut",display:"amOutDisplay",button:"amOutBtn"},
+  {key:"pmIn",display:"pmInDisplay",button:"pmInBtn"},
+  {key:"pmOut",display:"pmOutDisplay",button:"pmOutBtn"}
+];
+
+function localDate(date=new Date()) {
+  return date.getFullYear()+"-"+
+    String(date.getMonth()+1).padStart(2,"0")+"-"+
+    String(date.getDate()).padStart(2,"0");
+}
+
+function saveRecords() {
+  localStorage.setItem(RECORD_KEY,JSON.stringify(records));
+}
+function saveHolidays() {
+  localStorage.setItem(HOLIDAY_KEY,JSON.stringify(holidays));
+}
+
+function getTodayRecord() {
+  return records.find(r=>r.date===localDate());
+}
+
+function getRecord(date) {
+  return records.find(r=>r.date===date);
+}
+
+function dayOfWeek(date) {
+  return new Date(date+"T12:00:00").getDay();
+}
+
+function dayType(date) {
+  if(holidays[date]) return "Holiday";
+  const day=dayOfWeek(date);
+  if(day===6) return "Saturday";
+  if(day===0) return "Sunday";
+  return "Regular";
+}
+
+function formatDate(date) {
+  return new Date(date+"T12:00:00").toLocaleDateString("en-PH",{
+    month:"short",day:"numeric",year:"numeric"
+  });
+}
+
+function formatTime(value) {
+  if(!value) return "--:--";
+  return new Date(value).toLocaleTimeString("en-PH",{
+    hour:"2-digit",minute:"2-digit",hour12:true
+  });
+  }
+
+function formatTime(value) {
+  if(!value) return "--:--";
+  return new Date(value).toLocaleTimeString("en-PH",{
+    hour:"2-digit",minute:"2-digit",hour12:true
+  });
+}
+
+function inputTime(value) {
+  if(!value) return "";
+  const d=new Date(value);
+  return String(d.getHours()).padStart(2,"0")+":"+
+    String(d.getMinutes()).padStart(2,"0");
+}
+
+function timeToISO(date,time) {
+  if(!date||!time) return null;
+  const [y,m,d]=date.split("-").map(Number);
+  const [h,min]=time.split(":").map(Number);
+  return new Date(y,m-1,d,h,min,0,0).toISOString();
+}
+
+function minutesBetween(start,end) {
+  if(!start||!end) return 0;
+  const a=new Date(start);
+  const b=new Date(end);
+  return Math.max(0,Math.floor((b-a)/60000));
+}
+
+function duration(record) {
+  if(!record) return 0;
+  return minutesBetween(record.amIn,record.amOut)+
+    minutesBetween(record.pmIn,record.pmOut);
+}
+
+function hoursText(minutes) {
+  return Math.floor(minutes/60)+"h "+(minutes%60)+"m";
+  }
+  function escapeHTML(value) {
+  return String(value).replace(/[&<>"']/g,c=>({
+    "&":"&amp;","<":"&lt;",">":"&gt;",
+    '"':"&quot;","'":"&#39;"
+  })[c]);
+}
+
+function getOrCreateToday() {
+  let record=getTodayRecord();
+  if(!record) {
+    record={
+      id:Date.now().toString(),
+      date:localDate(),
+      amIn:null,amOut:null,pmIn:null,pmOut:null
+    };
+    records.push(record);
+  }
+  return record;
+}
+
+// AUTOMATIC ATTENDANCE RECORDING
+slots.forEach((slot,index)=>{
+  $(slot.button).addEventListener("click",()=>{
+    const record=getOrCreateToday();
+
+    if(record[slot.key]) return;
+
+    // Keep the four entries in order.
+    for(let i=0;i<index;i++) {
+      if(!record[slots[i].key]) {
+        alert("Please complete the previous attendance entry first.");
+        return;
+      }
+    }
+
+    const now=new Date();
+if(index>0) {
+      const previous=new Date(record[slots[index-1].key]);
+      if(now<=previous) {
+        alert("The new entry must be later than the previous entry.");
+        return;
+      }
+    }
+
+    record[slot.key]=now.toISOString();
+    saveRecords();
+    render();
+  });
+});
+
+// HOLIDAY MANAGEMENT
+$("holidayDate").value=localDate();
+
+$("saveHolidayBtn").addEventListener("click",()=>{
+  const date=$("holidayDate").value;
+  const name=$("holidayName").value.trim();
+
+  if(!date||!name) {
+    alert("Please enter both the holiday date and holiday name.");
+    return;
+  }
+
+  holidays[date]=name;
+  saveHolidays();
+  $("holidayName").value="";
+  render();
+  alert("Holiday saved successfully.");
+});
+
+function removeHoliday(date) {
+  if(!holidays[date]) return;
+  if(!confirm("Remove the holiday marking for "+formatDate(date)+"?")) return;
+  delete holidays[date];
+  saveHolidays();
+  render();
+                   }
+  function renderHolidays() {
+  const list=$("holidayList");
+  list.innerHTML="";
+
+  const month=$("monthPicker").value;
+  const items=Object.keys(holidays)
+    .filter(date=>!month||date.startsWith(month))
+    .sort();
+
+  if(items.length===0) {
+    list.innerHTML='<div class="empty-state">No manually marked holidays for this month.</div>';
+    return;
+  }
+
+  items.forEach(date=>{
+    const item=document.createElement("div");
+    item.className="holiday-item";
+
+    const info=document.createElement("div");
+    const name=document.createElement("strong");
+    name.textContent=holidays[date];
+    const small=document.createElement("small");
+    small.textContent=formatDate(date);
+    info.append(name,small);
+
+    const actions=document.createElement("div");
+    actions.style.display="flex";
+    actions.style.gap="6px";
+
+    const edit=document.createElement("button");
+    edit.className="btn btn-neutral small-btn";
+    edit.textContent="Edit";
+    edit.onclick=()=>{
+      $("holidayDate").value=date;
+      $("holidayName").value=holidays[date];
+      $("holidayName").focus();
+    };
+const remove=document.createElement("button");
+    remove.className="btn btn-danger small-btn";
+    remove.textContent="Remove";
+    remove.onclick=()=>removeHoliday(date);
+
+    actions.append(edit,remove);
+    item.append(info,actions);
+    list.appendChild(item);
+  });
+}
+
+// LIVE CLOCK
+function updateClock() {
+  const now=new Date();
+  $("liveClock").textContent=now.toLocaleTimeString("en-PH",{
+    hour:"2-digit",minute:"2-digit",second:"2-digit",hour12:true
+  });
+  $("liveDate").textContent=now.toLocaleDateString("en-PH",{
+    weekday:"long",month:"long",day:"numeric",year:"numeric"
+  });
+}
+
+function renderToday() {
+  const record=getTodayRecord();
+
+  slots.forEach((slot,index)=>{
+    $(slot.display).textContent=record
+      ?formatTime(record[slot.key]):"--:--";
+
+    let disabled=!!(record&&record[slot.key]);
+
+    if(index>0) {
+      if(!record||!record[slots[index-1].key]) disabled=true;
+    }
+
+    $(slot.button).disabled=disabled;
+  });
+  const total=record?duration(record):0;
+  const am=record?minutesBetween(record.amIn,record.amOut):0;
+  const pm=record?minutesBetween(record.pmIn,record.pmOut):0;
+
+  $("morningDisplay").textContent=hoursText(am);
+  $("afternoonDisplay").textContent=hoursText(pm);
+  $("hoursDisplay").textContent=hoursText(total);
+
+  const count=record?slots.filter(s=>record[s.key]).length:0;
+  $("recordStatus").textContent=record
+    ?count+" of 4 attendance entries recorded today."
+    :"No attendance entries recorded today.";
+
+  const type=dayType(localDate());
+  const tag=$("todayType");
+  tag.textContent=type.toUpperCase();
+  tag.className="tag "+(type==="Holiday"?"tag-holiday":
+    (type==="Saturday"||type==="Sunday"?"tag-weekend":"tag-regular"));
+}
+
+// ATTENDANCE HISTORY
+function renderHistory() {
+  const body=$("historyBody");
+  body.innerHTML="";
+
+  const filter=$("historyMonth").value;
+  const sorted=[...records]
+    .filter(r=>!filter||r.date.startsWith(filter))
+    .sort((a,b)=>b.date.localeCompare(a.date));
+
+  $("historyEmpty").style.display=sorted.length?"none":"block";
+
+  sorted.forEach(record=>{
+    const tr=document.createElement("tr");
+    const type=dayType(record.date);
+
+    const values=[
+      formatDate(record.date),
+      type,
+      formatTime(record.amIn),
+      formatTime(record.amOut),
+      formatTime(record.pmIn),
+      formatTime(record.pmOut),
+      hoursText(duration(record))
+    ];
+
+    values.forEach((value,index)=>{
+      const td=document.createElement("td");
+
+      if(index===1) {
+        const span=document.createElement("span");
+        span.className="tag "+(type==="Holiday"?"tag-holiday":
+          (type==="Saturday"||type==="Sunday"?"tag-weekend":"tag-regular"));
+        span.textContent=value;
+        if(type==="Holiday") span.title=holidays[record.date];
+        td.appendChild(span);
+      } else {
+        td.textContent=value;
+      }
+
+      tr.appendChild(td);
+    });
+
+    const action=document.createElement("td");
+    action.className="action-cell";
+
+    const edit=document.createElement("button");
+    edit.className="btn btn-soft small-btn";
+    edit.textContent="Edit";
+    edit.onclick=()=>openEdit(record.id);
+
+    const del=document.createElement("button");
+    del.className="btn btn-danger small-btn";
+    del.textContent="Delete";
+    del.onclick=()=>deleteRecord(record.id);
+
+    action.append(edit,del);
+    tr.appendChild(action);
+    body.appendChild(tr);
+  });
+}
+
+function deleteRecord(id) {
+  if(!confirm("Are you sure you want to delete this attendance record?")) return;
+  records=records.filter(r=>r.id!==id);
+  saveRecords();
+  render();
+}
+
+// EDIT ATTENDANCE
+function openEdit(id) {
+  const record=records.find(r=>r.id===id);
+  if(!record) return;
+
+  editingId=id;
+  $("editDate").value=record.date;
+  $("editAmIn").value=inputTime(record.amIn);
+  $("editAmOut").value=inputTime(record.amOut);
+  $("editPmIn").value=inputTime(record.pmIn);
+  $("editPmOut").value=inputTime(record.pmOut);
+  $("editDialog").showModal();
+}
+
+$("cancelEdit").onclick=()=>$("editDialog").close();
+
+$("editForm").addEventListener("submit",event=>{
+  event.preventDefault();
+
+  const record=records.find(r=>r.id===editingId);
+  if(!record) return;
+
+  const date=$("editDate").value;
+  const values=[
+    $("editAmIn").value,
+    $("editAmOut").value,
+    $("editPmIn").value,
+    $("editPmOut").value
+  ];
+
+  // Require arrival before departure for each pair.
+  if(values[1]&&!values[0]) {
+    alert("AM Arrival is required when AM Departure is entered.");
+    return;
+  }
+  if(values[3]&&!values[2]) {
+    alert("PM Arrival is required when PM Departure is entered.");
+    return;
+  }
+
+  const converted=values.map(v=>v?timeToISO(date,v):null);
+
+  if(converted[0]&&converted[1]&&new Date(converted[1])<=new Date(converted[0])) {
+    alert("AM Departure must be later than AM Arrival.");
+    return;
+  }
+  if(converted[2]&&converted[3]&&new Date(converted[3])<=new Date(converted[2])) {
+    alert("PM Departure must be later than PM Arrival.");
+    return;
+  }
+  if(converted[0]&&converted[2]&&new Date(converted[2])<=new Date(converted[0])) {
+    alert("PM Arrival must be later than AM Arrival.");
+    return;
+    }
+  if(converted[1]&&converted[2]&&new Date(converted[2])<new Date(converted[1])) {
+    alert("PM Arrival cannot be earlier than AM Departure.");
+    return;
+  }
+
+  const duplicate=records.find(r=>r.date===date&&r.id!==editingId);
+  if(duplicate) {
+    alert("There is already an attendance record for that date. Edit or remove the other record first.");
+    return;
+  }
+
+  record.date=date;
+  slots.forEach((slot,index)=>record[slot.key]=converted[index]);
+
+  saveRecords();
+  $("editDialog").close();
+  render();
+});
+
+// MONTHLY SUMMARY
+function renderMonthly() {
+  const month=$("monthPicker").value||localDate().slice(0,7);
+  const selected=records.filter(r=>r.date.startsWith(month));
+  const total=selected.reduce((sum,r)=>sum+duration(r),0);
+
+  $("monthlyHours").textContent=hoursText(total);
+  $("monthlyDays").textContent=selected.length+" recorded days";
+  renderHolidays();
+}
+
+// EMPLOYEE INFORMATION
+$("employeeName").value=localStorage.getItem(PROFILE_KEY)||"";
+
+$("saveProfileBtn").onclick=()=>{
+  const name=$("employeeName").value.trim();
+  if(!name) {
+    alert("Please enter your full name.");
+    return;
+  }
+  localStorage.setItem(PROFILE_KEY,name);
+  $("profileStatus").textContent="Personal information saved successfully.";
+};
+
+// THEME
+function setTheme(theme) {
+  document.body.classList.toggle("dark",theme==="dark");
+  $("themeBtn").textContent=theme==="dark"?"Light Mode":"Dark Mode";
+  localStorage.setItem(THEME_KEY,theme);
+}
+
+setTheme(localStorage.getItem(THEME_KEY)||"light");
+
+$("themeBtn").onclick=()=>{
+  setTheme(document.body.classList.contains("dark")?"light":"dark");
+};
+
+// PDF REPORT
+function makePrintReport() {
+  const month=$("monthPicker").value;
+  if(!month) {
+    alert("Please select a report month.");
+    return false;
+  }
+
+  const name=$("employeeName").value.trim();
+  if(!name) {
+    alert("Please enter your full name and save your information first.");
+    $("employeeName").focus();
+    return false;
+  }
+
+  const [year,monthNumber]=month.split("-").map(Number);
+  const daysInMonth=new Date(year,monthNumber,0).getDate();
+
+  $("printName").textContent=name;
+  $("printMonth").textContent=new Date(year,monthNumber-1,1)
+    .toLocaleDateString("en-PH",{month:"long",year:"numeric"});
+
+  const body=$("printBody");
+  body.innerHTML="";
+
+  let monthlyTotal=0;
+
+  // Create one report row for EVERY calendar day.
+  for(let day=1;day<=daysInMonth;day++) {
+    const date=year+"-"+String(monthNumber).padStart(2,"0")+"-"+
+      String(day).padStart(2,"0");
+
+    const record=getRecord(date);
+    const type=dayType(date);
+    const minutes=record?duration(record):0;
+    monthlyTotal+=minutes;
+
+    const tr=document.createElement("tr");
+
+    if(type==="Holiday") tr.className="holiday-row";
+    else if(type==="Saturday"||type==="Sunday") tr.className="weekend-row";
+
+    const dayCell=document.createElement("td");
+    dayCell.className="day-col";
+
+    let label=String(day)+" - "+type;
+    if(type==="Holiday") label+=": "+holidays[date];
+    dayCell.textContent=label;
+    tr.appendChild(dayCell);
+
+    const values=[
+      record?formatTime(record.amIn):"",
+      record?formatTime(record.amOut):"",
+      record?formatTime(record.pmIn):"",
+      record?formatTime(record.pmOut):"",
+      record&&minutes>0?hoursText(minutes):"",
+      "",
+      ""
+    ];
+
+    values.forEach(value=>{
+      const td=document.createElement("td");
+      td.textContent=value==="--:--"?"":value;
+      tr.appendChild(td);
+    });
+
+    body.appendChild(tr);
+  }
+
+  $("printTotal").textContent=hoursText(monthlyTotal);
+  return true;
+}
+
+$("pdfBtn").onclick=()=>{
+  if(!makePrintReport()) return;
+
+  // Give the browser time to prepare the print layout.
+  setTimeout(()=>window.print(),150);
+};
+
+// FILTERS
+$("historyMonth").value=localDate().slice(0,7);
+$("monthPicker").value=localDate().slice(0,7);
+
+$("historyMonth").onchange=renderHistory;
+
+$("clearFilterBtn").onclick=()=>{
+  $("historyMonth").value="";
+  renderHistory();
+};
+
+$("monthPicker").onchange=()=>{
+  renderMonthly();
+};
+
+// INITIAL DISPLAY
+function render() {
+  renderToday();
+  renderHistory();
+  renderMonthly();
+}
+
+updateClock();
+setInterval(updateClock,1000);
+render();
+</script>
+</body>
+</html>
+
