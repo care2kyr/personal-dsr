@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -350,6 +349,92 @@ dialog::backdrop {background:#0b1822a6}
   .p-cert {font-size:9px;margin-top:13px;line-height:1.5}
   .p-footer {font-size:8px;margin-top:8px;color:#444}
 }
+
+  
+/* LOGIN AND REGISTRATION */
+.auth-screen {
+  display:flex;
+  min-height:calc(100vh - 70px);
+  padding:35px 15px;
+  align-items:center;
+  justify-content:center;
+}
+
+.auth-card {
+  width:100%;
+  max-width:410px;
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:16px;
+  padding:28px;
+  box-shadow:var(--shadow);
+}
+
+.auth-heading {
+  font-size:23px;
+  font-weight:750;
+  margin-bottom:5px;
+}
+
+.auth-description {
+  color:var(--muted);
+  font-size:12px;
+  margin-bottom:23px;
+}
+
+.auth-fields {
+  display:grid;
+  gap:14px;
+}
+
+.auth-fields input {
+  width:100%;
+  height:44px;
+  padding:0 12px;
+  background:var(--surface2);
+  color:var(--text);
+  border:1px solid var(--border);
+  border-radius:8px;
+  outline:none;
+}
+
+.auth-fields input:focus {
+  border-color:var(--primary);
+}
+
+.auth-message {
+  font-size:12px;
+  margin-top:13px;
+  line-height:1.5;
+  color:var(--muted);
+}
+
+.auth-switch {
+  text-align:center;
+  font-size:12px;
+  margin-top:18px;
+  color:var(--muted);
+}
+
+.auth-switch button {
+  border:0;
+  background:none;
+  color:var(--primary);
+  font-weight:750;
+  padding:4px;
+}
+
+#logoutBtn {
+  display: inline-block;
+  }
+  
+@media(max-width:430px) {
+  .auth-card {padding:22px}
+}
+  main.container {
+  display:none;
+  }
+
 </style>
 </head>
 
@@ -365,12 +450,52 @@ dialog::backdrop {background:#0b1822a6}
     </div>
     <div class="top-actions">
       <button class="icon-btn" id="themeBtn">Dark Mode</button>
+      <button class="icon-btn" id="logoutBtn">Log Out</button>
+
     </div>
   </div>
 </header>
 
-<main class="container">
+<section class="auth-screen" id="authScreen">
+  <div class="auth-card">
+    <div class="eyebrow">PERSONAL DSR ACCOUNT</div>
+    <div class="auth-heading" id="authTitle">Welcome back</div>
+    <div class="auth-description" id="authDescription">
+      Sign in to access your attendance records.
+    </div>
 
+    <div class="auth-fields">
+      <div class="field">
+        <label for="authEmail">EMAIL ADDRESS</label>
+        <input type="email" id="authEmail" placeholder="Enter your email" autocomplete="email">
+      </div>
+
+      <div class="field">
+        <label for="authPassword">PASSWORD</label>
+        <input type="password" id="authPassword" placeholder="Enter your password" autocomplete="current-password">
+      </div>
+
+      <div class="field" id="confirmPasswordField" style="display:none">
+        <label for="authConfirmPassword">CONFIRM PASSWORD</label>
+        <input type="password" id="authConfirmPassword" placeholder="Confirm your password" autocomplete="new-password">
+      </div>
+
+      <button class="btn btn-primary full-btn" id="authSubmitBtn">
+        Sign In
+      </button>
+    </div>
+
+    <div class="auth-message" id="authMessage"></div>
+
+    <div class="auth-switch">
+      <span id="authSwitchText">Don't have an account?</span>
+      <button type="button" id="authSwitchBtn">Create Account</button>
+    </div>
+  </div>
+</section>
+
+<main class="container">
+  
   <section class="page-heading">
     <div>
       <div class="eyebrow">Personal Workspace</div>
@@ -540,6 +665,7 @@ dialog::backdrop {background:#0b1822a6}
     </div>
     <div class="note" id="profileStatus"></div>
   </section>
+  
 
   <div class="footer">PERSONAL DSR · LOCAL ATTENDANCE RECORDS</div>
 </main>
@@ -626,7 +752,6 @@ dialog::backdrop {background:#0b1822a6}
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
 <script>
 "use strict";
 
@@ -639,7 +764,7 @@ const dsrSupabase = window.supabase.createClient(
     DSR_SUPABASE_URL,
     DSR_SUPABASE_KEY
 );
-
+  
 const RECORD_KEY = "personalDSR_records_v4";
 const HOLIDAY_KEY = "personalDSR_holidays";
 const PROFILE_KEY = "personalDSR_profile";
@@ -674,10 +799,23 @@ function localDate(date=new Date()) {
 }
 
 function saveRecords() {
-  localStorage.setItem(RECORD_KEY,JSON.stringify(records));
+  localStorage.setItem(RECORD_KEY, JSON.stringify(records));
+
+  if (currentUser) {
+    syncAttendanceToCloud().catch(error => {
+      console.error("Attendance auto-save failed:", error);
+    });
+  }
 }
+
 function saveHolidays() {
-  localStorage.setItem(HOLIDAY_KEY,JSON.stringify(holidays));
+  localStorage.setItem(HOLIDAY_KEY, JSON.stringify(holidays));
+
+  if (currentUser) {
+    syncHolidaysToCloud().catch(error => {
+      console.error("Holiday auto-save failed:", error);
+    });
+  }
 }
 
 function getTodayRecord() {
@@ -756,6 +894,7 @@ function hoursText(minutes) {
     '"':"&quot;","'":"&#39;"
   })[c]);
 }
+  
 
 function getOrCreateToday() {
   let record=getTodayRecord();
@@ -769,6 +908,290 @@ function getOrCreateToday() {
   }
   return record;
 }
+
+  
+// AUTHENTICATION
+let currentUser = null;
+let authMode = "login";
+
+function setAuthMode(mode) {
+  authMode = mode;
+
+  const isRegister = mode === "register";
+
+  $("authTitle").textContent = isRegister
+    ? "Create your account"
+    : "Welcome back";
+
+  $("authDescription").textContent = isRegister
+    ? "Register to securely access your attendance records."
+    : "Sign in to access your attendance records.";
+
+  $("authSubmitBtn").textContent = isRegister
+    ? "Create Account"
+    : "Sign In";
+
+  $("authSwitchText").textContent = isRegister
+    ? "Already have an account?"
+    : "Don't have an account?";
+
+  $("authSwitchBtn").textContent = isRegister
+    ? "Sign In"
+    : "Create Account";
+
+  $("confirmPasswordField").style.display =
+    isRegister ? "block" : "none";
+
+  $("authPassword").autocomplete =
+    isRegister ? "new-password" : "current-password";
+
+  $("authMessage").textContent = "";
+}
+
+function showAuth() {
+  $("authScreen").style.display = "flex";
+  document.querySelector("main.container").style.display = "none";
+  $("logoutBtn").style.display = "none";
+}
+
+async function syncAttendanceToCloud() {
+  if (!currentUser) return;
+
+  const userId = currentUser.id;
+
+  const cloudRecords = records.map(record => ({
+    user_id: userId,
+    work_date: record.date,
+    am_arrival: record.amIn,
+    am_departure: record.amOut,
+    pm_arrival: record.pmIn,
+    pm_departure: record.pmOut
+  }));
+
+  if (cloudRecords.length === 0) return;
+
+  const { error } = await dsrSupabase
+    .from("attendance_records")
+    .upsert(cloudRecords, {
+      onConflict: "user_id,work_date"
+    });
+
+  if (error) {
+  alert("Upload error: " + error.message);
+  throw error;
+}
+
+}
+
+async function loadAttendanceFromCloud() {
+  if (!currentUser) return;
+
+  const { data, error } = await dsrSupabase
+    .from("attendance_records")
+    .select("*")
+    .eq("user_id", currentUser.id);
+
+  if (error) {
+    console.error("Attendance download error:", error);
+    throw error;
+  }
+
+  data.forEach(row => {
+    let record = records.find(r => r.date === row.work_date);
+
+    if (!record) {
+      record = {
+        id: Date.now().toString() + Math.random().toString(36).slice(2),
+        date: row.work_date,
+        amIn: null,
+        amOut: null,
+        pmIn: null,
+        pmOut: null
+      };
+
+      records.push(record);
+    }
+
+    record.amIn = record.amIn || row.am_arrival;
+    record.amOut = record.amOut || row.am_departure;
+    record.pmIn = record.pmIn || row.pm_arrival;
+    record.pmOut = record.pmOut || row.pm_departure;
+  });
+
+  localStorage.setItem(RECORD_KEY, JSON.stringify(records));
+}
+
+async function syncHolidaysToCloud() {
+  if (!currentUser) return;
+
+  const holidayRows = Object.entries(holidays).map(([date, name]) => ({
+    user_id: currentUser.id,
+    holiday_date: date,
+    holiday_name: name
+  }));
+
+  if (holidayRows.length === 0) return;
+
+  const { error } = await dsrSupabase
+    .from("holidays")
+    .upsert(holidayRows, {
+      onConflict: "user_id,holiday_date"
+    });
+
+  if (error) {
+    console.error("Holiday sync error:", error);
+    throw error;
+  }
+}
+
+async function loadHolidaysFromCloud() {
+  if (!currentUser) return;
+
+  const { data, error } = await dsrSupabase
+    .from("holidays")
+    .select("*")
+    .eq("user_id", currentUser.id);
+
+  if (error) {
+    console.error("Holiday download error:", error);
+    throw error;
+  }
+
+  data.forEach(row => {
+    if (!holidays[row.holiday_date]) {
+      holidays[row.holiday_date] = row.holiday_name;
+    }
+  });
+
+  localStorage.setItem(HOLIDAY_KEY, JSON.stringify(holidays));
+}
+
+async function syncAllData() {
+  try {
+    await loadAttendanceFromCloud();
+    await syncAttendanceToCloud();
+
+    await loadHolidaysFromCloud();
+    await syncHolidaysToCloud();
+
+    render();
+
+} catch (error) {
+  console.error("Cloud sync failed:", error);
+  alert("Cloud sync failed. Your local records are still saved.");
+  render();
+  }
+}
+
+async function showDashboard(user) {
+  currentUser = user;
+
+  $("authScreen").style.display = "none";
+  document.querySelector("main.container").style.display = "block";
+  $("logoutBtn").style.display = "inline-block";
+
+  await syncAllData();
+}
+
+$("authSwitchBtn").addEventListener("click", () => {
+  setAuthMode(authMode === "login" ? "register" : "login");
+});
+
+$("authSubmitBtn").addEventListener("click", async () => {
+  const email = $("authEmail").value.trim();
+  const password = $("authPassword").value;
+  const confirmPassword = $("authConfirmPassword").value;
+
+  const message = $("authMessage");
+  const button = $("authSubmitBtn");
+
+  if (!email || !password) {
+    message.textContent = "Please enter your email and password.";
+    return;
+  }
+
+  if (authMode === "register") {
+    if (password.length < 6) {
+      message.textContent = "Password must be at least 6 characters.";
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      message.textContent = "Passwords do not match.";
+      return;
+    }
+  }
+
+  button.disabled = true;
+  message.textContent = "Please wait...";
+
+  try {
+    if (authMode === "register") {
+      const { data, error } = await dsrSupabase.auth.signUp({
+        email,
+        password
+      });
+
+      if (error) throw error;
+
+      if (data.session) {
+        showDashboard(data.user);
+        message.textContent = "";
+      } else {
+        message.textContent =
+          "Account created! Please check your email to confirm your account before signing in.";
+      }
+
+    } else {
+      const { data, error } =
+        await dsrSupabase.auth.signInWithPassword({
+          email,
+          password
+        });
+
+      if (error) throw error;
+
+      showDashboard(data.user);
+      message.textContent = "";
+    }
+
+  } catch (error) {
+    message.textContent = error.message;
+  } finally {
+    button.disabled = false;
+  }
+});
+
+$("logoutBtn").addEventListener("click", async () => {
+  const { error } = await dsrSupabase.auth.signOut();
+
+  if (error) {
+    alert(error.message);
+    return;
+  }
+
+  currentUser = null;
+  setAuthMode("login");
+  showAuth();
+});
+
+async function checkAuthSession() {
+  showAuth();
+
+  const { data, error } = await dsrSupabase.auth.getSession();
+
+  if (error) {
+    $("authMessage").textContent = error.message;
+    return;
+  }
+
+  if (data.session) {
+    showDashboard(data.session.user);
+  }
+}
+
+setAuthMode("login");
+
 
 // AUTOMATIC ATTENDANCE RECORDING
 slots.forEach((slot,index)=>{
@@ -825,8 +1248,9 @@ function removeHoliday(date) {
   delete holidays[date];
   saveHolidays();
   render();
-                   }
-  function renderHolidays() {
+}
+
+function renderHolidays() {
   const list=$("holidayList");
   list.innerHTML="";
 
@@ -982,11 +1406,34 @@ function renderHistory() {
   });
 }
 
-function deleteRecord(id) {
-  if(!confirm("Are you sure you want to delete this attendance record?")) return;
-  records=records.filter(r=>r.id!==id);
-  saveRecords();
-  render();
+async function deleteRecord(id) {
+  const record = records.find(r => r.id === id);
+
+  if (!record) return;
+
+  if (!confirm("Are you sure you want to delete this attendance record?")) {
+    return;
+  }
+
+  try {
+    if (currentUser) {
+      const { error } = await dsrSupabase
+        .from("attendance_records")
+        .delete()
+        .eq("user_id", currentUser.id)
+        .eq("work_date", record.date);
+
+      if (error) throw error;
+    }
+
+    records = records.filter(r => r.id !== id);
+
+    saveRecords();
+    render();
+
+  } catch (error) {
+    alert("Unable to delete attendance record: " + error.message);
+  }
 }
 
 // EDIT ATTENDANCE
@@ -1005,11 +1452,13 @@ function openEdit(id) {
 
 $("cancelEdit").onclick=()=>$("editDialog").close();
 
-$("editForm").addEventListener("submit",event=>{
+$("editForm").addEventListener("submit", async event=>{
   event.preventDefault();
 
   const record=records.find(r=>r.id===editingId);
   if(!record) return;
+
+  const oldDate = record.date;
 
   const date=$("editDate").value;
   const values=[
@@ -1054,12 +1503,34 @@ $("editForm").addEventListener("submit",event=>{
     return;
   }
 
-  record.date=date;
-  slots.forEach((slot,index)=>record[slot.key]=converted[index]);
+  record.date = date;
+slots.forEach((slot, index) => {
+  record[slot.key] = converted[index];
+});
 
-  saveRecords();
+localStorage.setItem(RECORD_KEY, JSON.stringify(records));
+
+try {
+  if (currentUser) {
+    await syncAttendanceToCloud();
+
+    if (oldDate !== date) {
+      const { error } = await dsrSupabase
+        .from("attendance_records")
+        .delete()
+        .eq("user_id", currentUser.id)
+        .eq("work_date", oldDate);
+
+      if (error) throw error;
+    }
+  }
+
   $("editDialog").close();
   render();
+
+} catch (error) {
+  alert("Unable to update attendance record: " + error.message);
+}
 });
 
 // MONTHLY SUMMARY
@@ -1203,7 +1674,8 @@ function render() {
 
 updateClock();
 setInterval(updateClock,1000);
-render();
+checkAuthSession();
+  
 </script>
 </body>
 </html>
