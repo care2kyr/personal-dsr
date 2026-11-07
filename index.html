@@ -713,7 +713,15 @@ dialog::backdrop {background:#0b1822a6}
       
       <div class="field" id="confirmPasswordField" style="display:none">
         <label for="authConfirmPassword">CONFIRM PASSWORD</label>
-        <input type="password" id="authConfirmPassword" placeholder="Confirm your password" autocomplete="new-password">
+<div class="password-input-wrap">
+  <input type="password" id="authConfirmPassword" placeholder="Confirm your password">
+  <button type="button" class="password-toggle" data-target="authConfirmPassword" aria-label="Show password">
+    <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/>
+      <circle cx="12" cy="12" r="3"/>
+    </svg>
+  </button>
+</div>
       </div>
 
       <button class="btn btn-primary full-btn" id="authSubmitBtn">
@@ -741,12 +749,28 @@ dialog::backdrop {background:#0b1822a6}
     <div class="auth-fields">
       <div class="field">
         <label for="resetNewPassword">NEW PASSWORD</label>
-        <input type="password" id="resetNewPassword" placeholder="Enter new password">
+<div class="password-input-wrap">
+  <input type="password" id="resetNewPassword" placeholder="Enter new password">
+  <button type="button" class="password-toggle" data-target="resetNewPassword" aria-label="Show password">
+    <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/>
+      <circle cx="12" cy="12" r="3"/>
+    </svg>
+  </button>
+</div>
       </div>
 
       <div class="field">
         <label for="resetConfirmPassword">CONFIRM NEW PASSWORD</label>
-        <input type="password" id="resetConfirmPassword" placeholder="Confirm new password">
+<div class="password-input-wrap">
+  <input type="password" id="resetConfirmPassword" placeholder="Confirm new password">
+  <button type="button" class="password-toggle" data-target="resetConfirmPassword" aria-label="Show password">
+    <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/>
+      <circle cx="12" cy="12" r="3"/>
+    </svg>
+  </button>
+</div>
       </div>
 
       <button class="btn btn-primary full-btn" id="resetPasswordBtn">
