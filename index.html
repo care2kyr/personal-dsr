@@ -1667,16 +1667,16 @@ document.addEventListener("click", (event) => {
     $("profileMenu").classList.remove("show");
   }
 });
-
 let isPasswordRecovery = false;
 
 dsrSupabase.auth.onAuthStateChange((event, session) => {
-  if (event === "PASSWORD_RECOVERY") {
+  if (event === "PASSWORD_RECOVERY" && session) {
     isPasswordRecovery = true;
 
     $("authScreen").style.display = "none";
     $("resetPasswordScreen").style.display = "flex";
     document.querySelector("main.container").style.display = "none";
+    $("resetPasswordMessage").textContent = "";
   }
 });
 
@@ -1734,6 +1734,25 @@ $("resetPasswordBtn").addEventListener("click", async () => {
 });
   
 async function checkAuthSession() {
+  const hashParams = new URLSearchParams(
+    window.location.hash.substring(1)
+  );
+
+  const queryParams = new URLSearchParams(
+    window.location.search
+  );
+
+  isPasswordRecovery =
+    hashParams.get("type") === "recovery" ||
+    queryParams.get("type") === "recovery";
+
+  if (isPasswordRecovery) {
+    $("authScreen").style.display = "none";
+    $("resetPasswordScreen").style.display = "flex";
+    document.querySelector("main.container").style.display = "none";
+    return;
+  }
+
   showAuth();
 
   const { data, error } = await dsrSupabase.auth.getSession();
@@ -1743,7 +1762,7 @@ async function checkAuthSession() {
     return;
   }
 
-  if (data.session && !isPasswordRecovery) {
+  if (data.session) {
     showDashboard(data.session.user);
   }
 }
